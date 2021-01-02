@@ -1,43 +1,63 @@
 import tkinter as tk
+from tkinter import filedialog
+import pygame
+
+
+pygame.mixer.init()
 
 class Mp3Player():
     # Ui and logic of a simple mp3 player
     def __init__(self, root):
-        self.root = root
-        self.init_ui()
-
-    def init_ui(self):
-
         # Intitiating all ui
 
         # Create playlist box
-        self.song_box = tk.Listbox(self.root, bg="black", fg="green", width="60")
+        #bg="black", fg="green"
+        self.__song_box = tk.Listbox(root, bg="black", fg="green", width="60", selectbackground="green", selectforeground="black")
 
         # Buttons icons
-        self.stop_btn_img = tk.PhotoImage(file="images\stop50.png")
-        self.play_btn_img = tk.PhotoImage(file="images\play50.png")
-        self.forward_btn_img = tk.PhotoImage(file="images\\forward50.png")
-        self.back_btn_img = tk.PhotoImage(file="images\\back50.png")
+        self.__stop_btn_img = tk.PhotoImage(file="images\stop50.png")
+        self.__play_btn_img = tk.PhotoImage(file="images\play50.png")
+        self.__forward_btn_img = tk.PhotoImage(file="images\\forward50.png")
+        self.__back_btn_img = tk.PhotoImage(file="images\\back50.png")
         
         # Create frame for control buttons
-        self.btn_frame = tk.Frame()
+        self.__btn_frame = tk.Frame(root)
 
         # Controll buttons
-        self.back_btn = tk.Button(self.btn_frame, image=self.back_btn_img, borderwidth=0)
-        self.play_btn = tk.Button(self.btn_frame, image=self.play_btn_img, borderwidth=0)
-        self.stop_btn = tk.Button(self.btn_frame, image=self.stop_btn_img, borderwidth=0)
-        self.forward_btn = tk.Button(self.btn_frame, image=self.forward_btn_img, borderwidth=0)
+        self.__back_btn = tk.Button(self.__btn_frame, image=self.__back_btn_img, borderwidth=0)
+        self.__play_btn = tk.Button(self.__btn_frame, image=self.__play_btn_img, borderwidth=0)
+        self.__stop_btn = tk.Button(self.__btn_frame, image=self.__stop_btn_img, borderwidth=0)
+        self.__forward_btn = tk.Button(self.__btn_frame, image=self.__forward_btn_img, borderwidth=0)
 
+        # Create menu
+        self.__main_menu = tk.Menu(root)
+        root.config(menu=self.__main_menu)
+
+        # Create 'Add song' menu
+        self.__add_song_menu = tk.Menu(self.__main_menu)
+        self.__main_menu.add_cascade(label="Add songs", menu=self.__add_song_menu)
+        self.__add_song_menu.add_command(label="Add 1 song to playlist", command=self.add_song)
 
         # Display all vidgets
-        self.song_box.pack(pady=20)
+        self.__song_box.pack(pady=20)
         
-        self.btn_frame.pack()
+        self.__btn_frame.pack()
 
-        self.back_btn.grid(row=0, column=0, padx=10)
-        self.stop_btn.grid(row=0, column=1, padx=10)
-        self.play_btn.grid(row=0, column=2, padx=10)
-        self.forward_btn.grid(row=0, column=3, padx=10)
+        self.__back_btn.grid(row=0, column=0, padx=10)
+        self.__stop_btn.grid(row=0, column=1, padx=10)
+        self.__play_btn.grid(row=0, column=2, padx=10)
+        self.__forward_btn.grid(row=0, column=3, padx=10)
+
+    def add_song(self):
+        # You can change an 'initialdir' on your folder with music
+        song = filedialog.askopenfilename(initialdir='audio/', title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ))
+
+        # Strip out directory info and extension
+        song = song.split("/")
+        song = song[-1].replace(".mp3", "")
+
+        # Add song to the end of listbox
+        self.__song_box.insert(tk.END, song)
 
         
     
@@ -50,6 +70,5 @@ root.maxsize(500, 300)
 root.minsize(500, 300)
 
 app = Mp3Player(root)
-
 
 root.mainloop()
