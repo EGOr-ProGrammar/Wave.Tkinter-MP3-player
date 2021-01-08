@@ -31,14 +31,16 @@ class Mp3Player():
         self.__pause_btn = tk.Button(self.__btn_frame, image=self.__pause_btn_img, borderwidth=0, command=self.pause)
         self.__forward_btn = tk.Button(self.__btn_frame, image=self.__forward_btn_img, borderwidth=0)
 
-        # Create menu
+        # Create main menu
         self.__main_menu = tk.Menu(root)
         root.config(menu=self.__main_menu)
 
         # Create 'Add song' menu
         self.__add_song_menu = tk.Menu(self.__main_menu)
         self.__main_menu.add_cascade(label="Add songs", menu=self.__add_song_menu)
-        self.__add_song_menu.add_command(label="Add 1 song to playlist", command=self.add_song)
+        self.__add_song_menu.add_command(label="Add song to playlist", command=self.add_song)
+        # Create 'Add many songs'
+        self.__add_song_menu.add_command(label="Add many songs to playlist", command=self.add_many_songs)
 
         # Display all vidgets
         self.__song_box.pack(pady=20)
@@ -51,7 +53,7 @@ class Mp3Player():
         self.__forward_btn.grid(row=0, column=3, padx=10)
 
     def add_song(self):
-        """ Adds a song to listbox deleting song's path and extension"""
+        """ Adds a song to the end of listbox deleting song's path and extension"""
         # You can change an 'initialdir' on your folder with music
         song = filedialog.askopenfilename(initialdir='audio/', title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ))
 
@@ -61,6 +63,18 @@ class Mp3Player():
 
         # Add song to the end of listbox
         self.__song_box.insert(tk.END, song)
+
+    def add_many_songs(self):
+        """ Adds many songs to the end of listbox deleting songs's path and extension"""
+        songs = filedialog.askopenfilenames(initialdir='audio/', title="Choose songs", filetypes=(("mp3 Files", "*.mp3"), ))
+
+        # erasing path and extension of an every song
+        for song in songs:
+            song = song.split("/")
+            song = song[-1].replace(".mp3", "")
+
+            # Add song to the end of listbox
+            self.__song_box.insert(tk.END, song)
 
     def play(self):
         global paused
