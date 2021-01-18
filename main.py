@@ -171,6 +171,7 @@ class Mp3Player():
 root = tk.Tk()
 root.title("WAVE")
 root.geometry("500x300")
+root.iconphoto(False, tk.PhotoImage(file="images\\notes_ico_Wave.png"))
 # Making root not resizable
 root.maxsize(500, 300)
 root.minsize(500, 300)
