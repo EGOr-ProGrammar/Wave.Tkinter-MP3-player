@@ -35,12 +35,19 @@ class Mp3Player():
         self.__main_menu = tk.Menu(root)
         root.config(menu=self.__main_menu)
 
-        # Create 'Add song' menu
+        # Create 'Add songs' menu
         self.__add_song_menu = tk.Menu(self.__main_menu)
         self.__main_menu.add_cascade(label="Add songs", menu=self.__add_song_menu)
+
         self.__add_song_menu.add_command(label="Add song to playlist", command=self.add_song)
-        # Create 'Add many songs'
         self.__add_song_menu.add_command(label="Add many songs to playlist", command=self.add_many_songs)
+
+        # Create 'Remove songs' menu
+        self.__remove_song_menu = tk.Menu(self.__main_menu)
+        self.__main_menu.add_cascade(label="Remove songs", menu=self.__remove_song_menu)
+
+        self.__remove_song_menu.add_command(label="Delete song from playlist", command=self.delete_song)
+        self.__remove_song_menu.add_command(label="Delete all songs from playlist", command=self.delete_all_song)
 
         # Display all vidgets
         self.__song_box.pack(pady=20)
@@ -147,6 +154,16 @@ class Mp3Player():
         self.__song_box.activate(previous_s)
         # Play previous song
         self.play()
+
+    def delete_song(self):
+        """Delet curretn song"""
+        self.__song_box.delete(tk.ANCHOR)
+        pygame.mixer.music.stop()
+    
+    def delete_all_song(self):
+        """Delet all songs from playlist"""
+        self.__song_box.delete(0, tk.END)
+        pygame.mixer.music.stop()
 
         
         
