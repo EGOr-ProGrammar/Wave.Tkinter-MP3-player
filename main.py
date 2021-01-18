@@ -26,10 +26,10 @@ class Mp3Player():
         self.__btn_frame = tk.Frame(root)
 
         # Controll buttons
-        self.__back_btn = tk.Button(self.__btn_frame, image=self.__back_btn_img, borderwidth=0)
+        self.__back_btn = tk.Button(self.__btn_frame, image=self.__back_btn_img, borderwidth=0, command=self.previous_song)
         self.__play_btn = tk.Button(self.__btn_frame, image=self.__play_btn_img, borderwidth=0, command=self.play)
         self.__pause_btn = tk.Button(self.__btn_frame, image=self.__pause_btn_img, borderwidth=0, command=self.pause)
-        self.__forward_btn = tk.Button(self.__btn_frame, image=self.__forward_btn_img, borderwidth=0)
+        self.__forward_btn = tk.Button(self.__btn_frame, image=self.__forward_btn_img, borderwidth=0, command=self.next_song)
 
         # Create main menu
         self.__main_menu = tk.Menu(root)
@@ -54,8 +54,8 @@ class Mp3Player():
 
     def add_song(self):
         """ Adds a song to the end of listbox deleting song's path and extension"""
-        # You can change an 'initialdir' on your folder with music
-        song = filedialog.askopenfilename(initialdir='audio/', title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ))
+        song = filedialog.askopenfilename(title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ))
+        # initialdir="D:\\utorrent ustanovka\\torrents\\music\System Of A Down\\Albums\\1998 - System of a Down", 
 
         # Strip out directory info and extension
         song = song.split("/")
@@ -66,7 +66,7 @@ class Mp3Player():
 
     def add_many_songs(self):
         """ Adds many songs to the end of listbox deleting songs's path and extension"""
-        songs = filedialog.askopenfilenames(initialdir='audio/', title="Choose songs", filetypes=(("mp3 Files", "*.mp3"), ))
+        songs = filedialog.askopenfilenames(title="Choose songs", filetypes=(("mp3 Files", "*.mp3"), ))
 
         # erasing path and extension of an every song
         for song in songs:
@@ -79,9 +79,10 @@ class Mp3Player():
     def play(self):
         global paused
         """ Plays selected song from listbox"""
+        
         song = self.__song_box.get(tk.ACTIVE)
 
-        song_path = f'D:\Wave\\audio\{song}.mp3'
+        song_path = f'D:\\utorrent ustanovka\\torrents\\music\\System Of A Down\\Albums\\2001 - Toxicity\\{song}.mp3'
         try:
             pygame.mixer.music.load(song_path)
             pygame.mixer.music.play(loops=0)
@@ -102,8 +103,53 @@ class Mp3Player():
             pygame.mixer.music.pause()
             paused = True 
 
+    def next_song(self):
+        """ Playing next song in the list box """
+        # Get current song tuple from listbox
+        next_s = self.__song_box.curselection()
+
+        # If we go forward of the last song, first song in the listbox
+        # starting to play.    
         
-    
+        if next_s[0] == (self.__song_box.size() - 1):
+            # Index of the first song, because current song is last
+            # in the listbox
+            next_s = 0
+        else:
+            # Index of the previous song
+            next_s = next_s[0] + 1
+        # Clear current song and make active next one 
+        self.__song_box.selection_clear(0, tk.END)
+        
+        self.__song_box.selection_set(next_s)
+        self.__song_box.activate(next_s)
+        # Play next song
+        self.play()
+
+    def previous_song(self):
+        """ Playing previous song in the list box """
+        # Get current song tuple from listbox
+        previous_s = self.__song_box.curselection()
+
+        # If we go backward of the first song, last song in the listbox
+        # starting to play.    
+        if previous_s[0] == 0:
+            # Index of the last song
+            previous_s = self.__song_box.size() - 1
+        else:
+            # Index of the previous song
+            previous_s = previous_s[0] - 1
+
+        # Clear current song and make active previous one 
+        self.__song_box.selection_clear(0, tk.END)
+        
+        self.__song_box.selection_set(previous_s)
+        self.__song_box.activate(previous_s)
+        # Play previous song
+        self.play()
+
+        
+        
 
 root = tk.Tk()
 root.title("WAVE")
