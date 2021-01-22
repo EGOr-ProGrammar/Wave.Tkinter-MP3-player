@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
 import pygame
+import time
+from mutagen.mp3 import MP3
 
 
 pygame.mixer.init()
@@ -47,7 +49,10 @@ class Mp3Player():
         self.__main_menu.add_cascade(label="Remove songs", menu=self.__remove_song_menu)
 
         self.__remove_song_menu.add_command(label="Delete song from playlist", command=self.delete_song)
-        self.__remove_song_menu.add_command(label="Delete all songs from playlist", command=self.delete_all_song)
+        self.__remove_song_menu.add_command(label="Delete all songs from playlist", command=self.delete_all_songs)
+
+        # Create status bar that shows duration of the song
+        self.__status_bar = tk.Label(root, text="", bd=1, relief=tk.GROOVE, anchor=tk.E)
 
         # Display all vidgets
         self.__song_box.pack(pady=20)
@@ -58,6 +63,8 @@ class Mp3Player():
         self.__pause_btn.grid(row=0, column=1, padx=10)
         self.__play_btn.grid(row=0, column=2, padx=10)
         self.__forward_btn.grid(row=0, column=3, padx=10)
+
+        self.__status_bar.pack(fill=tk.X, side=tk.BOTTOM, ipady=2)
 
     def add_song(self):
         """ Adds a song to the end of listbox deleting song's path and extension"""
@@ -96,6 +103,8 @@ class Mp3Player():
             paused = False
         except:
             pass
+        # Display duration of the song
+        self.song_length()
 
     def pause(self):
         """ Pause and unpause current song"""
@@ -125,6 +134,8 @@ class Mp3Player():
         else:
             # Index of the previous song
             next_s = next_s[0] + 1
+        
+            
         # Clear current song and make active next one 
         self.__song_box.selection_clear(0, tk.END)
         
@@ -132,7 +143,7 @@ class Mp3Player():
         self.__song_box.activate(next_s)
         # Play next song
         self.play()
-
+        
     def previous_song(self):
         """ Playing previous song in the list box """
         # Get current song tuple from listbox
@@ -159,11 +170,39 @@ class Mp3Player():
         """Delet curretn song"""
         self.__song_box.delete(tk.ANCHOR)
         pygame.mixer.music.stop()
+
+        # Clear status bar
+        self.__status_bar.config(text="")
     
-    def delete_all_song(self):
+    def delete_all_songs(self):
         """Delet all songs from playlist"""
         self.__song_box.delete(0, tk.END)
         pygame.mixer.music.stop()
+        # Clear status bar
+        self.__status_bar.config(text="")
+
+    def song_length(self):
+        """Get duration of the song"""
+        # Current time
+        current_time = pygame.mixer.music.get_pos() / 1000
+
+        # Using module 'time' to convert time to format
+        converted_current_time = time.strftime("%M:%S", time.gmtime(current_time))
+
+        
+        # Get song path to find song's length with mutagen
+        song = self.__song_box.curselection()
+        song = self.__song_box.get(song)
+        song = f'D:\\utorrent ustanovka\\torrents\\music\\System Of A Down\\Albums\\2001 - Toxicity\\{song}.mp3' 
+
+        song_length = MP3(song)
+        song_length = song_length.info.length
+        # Convert song length
+        converted_song_length = time.strftime("%M:%S", time.gmtime(song_length))
+
+        # Display and update time in status bar
+        self.__status_bar.config(text=f"{converted_current_time}   out of   {converted_song_length}")
+        self.__status_bar.after(1000, self.song_length)
 
         
         
@@ -172,9 +211,7 @@ root = tk.Tk()
 root.title("WAVE")
 root.geometry("500x300")
 root.iconphoto(False, tk.PhotoImage(file="images\\notes_ico_Wave.png"))
-# Making root not resizable
-root.maxsize(500, 300)
-root.minsize(500, 300)
+root.resizable(False, False)
 
 app = Mp3Player(root)
 
