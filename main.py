@@ -4,34 +4,42 @@ import pygame
 import time
 from mutagen.mp3 import MP3
 
-
 pygame.mixer.init()
+
 
 class Mp3Player():
     """ Ui and logic of a simple mp3 player"""
+
     def __init__(self, root):
         """ Intitiating all ui, global variables"""
 
         global paused
         paused = False
+        # Temporary solution to play songs from any device
+        global path
 
         # Create playlist box
-        self.__song_box = tk.Listbox(root, bg="black", fg="green", width="60", selectbackground="green", selectforeground="black")
+        self.__song_box = tk.Listbox(root, bg="#002B4D", fg="white", width="60", selectbackground="white",
+                                     selectforeground="#002B4D")
 
         # Buttons icons
         self.__pause_btn_img = tk.PhotoImage(file="images\pause50.png")
         self.__play_btn_img = tk.PhotoImage(file="images\play50.png")
         self.__forward_btn_img = tk.PhotoImage(file="images\\forward50.png")
         self.__back_btn_img = tk.PhotoImage(file="images\\back50.png")
-        
+
         # Create frame for control buttons
-        self.__btn_frame = tk.Frame(root)
+        self.__btn_frame = tk.Frame(root, bg="#E5F3FF")
 
         # Controll buttons
-        self.__back_btn = tk.Button(self.__btn_frame, image=self.__back_btn_img, borderwidth=0, command=self.previous_song)
-        self.__play_btn = tk.Button(self.__btn_frame, image=self.__play_btn_img, borderwidth=0, command=self.play)
-        self.__pause_btn = tk.Button(self.__btn_frame, image=self.__pause_btn_img, borderwidth=0, command=self.pause)
-        self.__forward_btn = tk.Button(self.__btn_frame, image=self.__forward_btn_img, borderwidth=0, command=self.next_song)
+        self.__back_btn = tk.Button(self.__btn_frame, image=self.__back_btn_img, borderwidth=0,
+                                    command=self.previous_song, bg="#E5F3FF")
+        self.__play_btn = tk.Button(self.__btn_frame, image=self.__play_btn_img, borderwidth=0, command=self.play,
+                                    bg="#E5F3FF")
+        self.__pause_btn = tk.Button(self.__btn_frame, image=self.__pause_btn_img, borderwidth=0, command=self.pause,
+                                     bg="#E5F3FF")
+        self.__forward_btn = tk.Button(self.__btn_frame, image=self.__forward_btn_img, borderwidth=0,
+                                       command=self.next_song, bg="#E5F3FF")
 
         # Create main menu
         self.__main_menu = tk.Menu(root)
@@ -52,11 +60,11 @@ class Mp3Player():
         self.__remove_song_menu.add_command(label="Delete all songs from playlist", command=self.delete_all_songs)
 
         # Create status bar that shows duration of the song
-        self.__status_bar = tk.Label(root, text="", bd=1, relief=tk.GROOVE, anchor=tk.E)
+        self.__status_bar = tk.Label(root, text="", bd=1, relief=tk.GROOVE, anchor=tk.E, bg="#7FC7FF")
 
         # Display all vidgets
         self.__song_box.pack(pady=20)
-        
+
         self.__btn_frame.pack()
 
         self.__back_btn.grid(row=0, column=0, padx=10)
@@ -68,35 +76,45 @@ class Mp3Player():
 
     def add_song(self):
         """ Adds a song to the end of listbox deleting song's path and extension"""
-        song = filedialog.askopenfilename(title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ))
-        # initialdir="D:\\utorrent ustanovka\\torrents\\music\System Of A Down\\Albums\\1998 - System of a Down", 
+        global path
 
+        song_path = filedialog.askopenfilename(title="Choose song", filetypes=(("mp3 Files", "*.mp3"),))
+
+        song_path = song_path.split("/")
+        path = "/".join(song_path[:-1])
         # Strip out directory info and extension
-        song = song.split("/")
-        song = song[-1].replace(".mp3", "")
+        song = song_path[-1].replace(".mp3", "")
 
         # Add song to the end of listbox
         self.__song_box.insert(tk.END, song)
 
     def add_many_songs(self):
         """ Adds many songs to the end of listbox deleting songs's path and extension"""
-        songs = filedialog.askopenfilenames(title="Choose songs", filetypes=(("mp3 Files", "*.mp3"), ))
+        global path
 
-        # erasing path and extension of an every song
-        for song in songs:
+        songs_path = filedialog.askopenfilenames(title="Choose songs", filetypes=(("mp3 Files", "*.mp3"),))
+
+        # Erasing path and extension of an every song
+        for song in songs_path:
             song = song.split("/")
             song = song[-1].replace(".mp3", "")
 
             # Add song to the end of listbox
             self.__song_box.insert(tk.END, song)
 
+        # Take path of the song from tuple of songs
+        songs_path = list(songs_path)
+        songs_path = songs_path[0].split("/")
+        path = "/".join(songs_path[:-1])
+
     def play(self):
         global paused
+        global path
         """ Plays selected song from listbox"""
-        
+
         song = self.__song_box.get(tk.ACTIVE)
 
-        song_path = f'D:\\utorrent ustanovka\\torrents\\music\\System Of A Down\\Albums\\2001 - Toxicity\\{song}.mp3'
+        song_path = f'{path}\\{song}.mp3'
         try:
             pygame.mixer.music.load(song_path)
             pygame.mixer.music.play(loops=0)
@@ -111,13 +129,13 @@ class Mp3Player():
         global paused
 
         # Unpause
-        if(paused):
+        if (paused):
             pygame.mixer.music.unpause()
             paused = False
         # Pause
         else:
             pygame.mixer.music.pause()
-            paused = True 
+            paused = True
 
     def next_song(self):
         """ Playing next song in the list box """
@@ -126,7 +144,7 @@ class Mp3Player():
 
         # If we go forward of the last song, first song in the listbox
         # starting to play.    
-        
+
         if next_s[0] == (self.__song_box.size() - 1):
             # Index of the first song, because current song is last
             # in the listbox
@@ -134,16 +152,15 @@ class Mp3Player():
         else:
             # Index of the previous song
             next_s = next_s[0] + 1
-        
-            
+
         # Clear current song and make active next one 
         self.__song_box.selection_clear(0, tk.END)
-        
+
         self.__song_box.selection_set(next_s)
         self.__song_box.activate(next_s)
         # Play next song
         self.play()
-        
+
     def previous_song(self):
         """ Playing previous song in the list box """
         # Get current song tuple from listbox
@@ -160,7 +177,7 @@ class Mp3Player():
 
         # Clear current song and make active previous one 
         self.__song_box.selection_clear(0, tk.END)
-        
+
         self.__song_box.selection_set(previous_s)
         self.__song_box.activate(previous_s)
         # Play previous song
@@ -173,7 +190,7 @@ class Mp3Player():
 
         # Clear status bar
         self.__status_bar.config(text="")
-    
+
     def delete_all_songs(self):
         """Delet all songs from playlist"""
         self.__song_box.delete(0, tk.END)
@@ -189,11 +206,10 @@ class Mp3Player():
         # Using module 'time' to convert time to format
         converted_current_time = time.strftime("%M:%S", time.gmtime(current_time))
 
-        
         # Get song path to find song's length with mutagen
         song = self.__song_box.curselection()
         song = self.__song_box.get(song)
-        song = f'D:\\utorrent ustanovka\\torrents\\music\\System Of A Down\\Albums\\2001 - Toxicity\\{song}.mp3' 
+        song = f'D:\\utorrent ustanovka\\torrents\\music\\System Of A Down\\Albums\\2001 - Toxicity\\{song}.mp3'
 
         song_length = MP3(song)
         song_length = song_length.info.length
@@ -204,14 +220,15 @@ class Mp3Player():
         self.__status_bar.config(text=f"{converted_current_time}   out of   {converted_song_length}")
         self.__status_bar.after(1000, self.song_length)
 
-        
-        
 
 root = tk.Tk()
 root.title("WAVE")
 root.geometry("500x300")
 root.iconphoto(False, tk.PhotoImage(file="images\\notes_ico_Wave.png"))
 root.resizable(False, False)
+root.configure(bg="#E5F3FF")
+# 7FC7FF
+# E5F3FF
 
 app = Mp3Player(root)
 
