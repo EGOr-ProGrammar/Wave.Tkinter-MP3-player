@@ -1,7 +1,6 @@
 .vscode/*
 __pycache__
 *.pyc
-wave_env/
 audio/*
 images/stop.png
 TODO.txt
